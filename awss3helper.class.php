@@ -28,8 +28,8 @@ class awsS3Helper
 		return Aws\S3\S3Client::factory(array(
 		    'profile' => '<profile in your aws credentials file>',
 		    'credentials' => array(
-		        'key'    => 'HJYUDTHFTYJDTYHDFTYJ',
-		        'secret' => 'WERTsdfg654re876er8g46sdf544gdsfgsdfgggf')
+		        'key'    => '',
+		        'secret' => '')
 		    ));
 	}
 
@@ -92,6 +92,20 @@ class awsS3Helper
 
 	/** 
 	 * ================================================================================
+	 * doesBucketExist API
+	 * ================================================================================
+	 */
+	public function object_exist($key)
+	{
+		 
+		$response = $this->client->doesObjectExist($this->bucket, $key);
+		 
+		// Success? (Boolean, not a CFResponse object)
+		return $response;
+	}
+
+	/** 
+	 * ================================================================================
 	 * Upload Proccess
 	 * ================================================================================
 	 *
@@ -99,9 +113,10 @@ class awsS3Helper
 	 * @param (string) $object_path: S3 object upload path without filename
 	 * @param (string) $action: Type of Upload Proccess action (Optional)
 	 * @param (string) $file_dst_name: Target filename (Optional)
+	 * @param (boolean) $overwrite: Upload file even if file exists
 	 *
 	 */
-	public function uploadProccess($file_src, $object_path, $action=NULL, $file_dst_name='')
+	public function uploadProccess($file_src, $object_path, $action=NULL, $file_dst_name='', $overwrite=false)
 	{
 
 		if (!$this->bucket)	
@@ -141,6 +156,16 @@ class awsS3Helper
 		$file['dst'] = $object_path . $file_dst_name;
 		// echo $file['dst'];exit;
 
+		if ($overwrite == false) {
+
+			if ($this->object_exist($file['dst'])) {
+				
+				echo "S3 Object Key already exists";
+				echo "{$_wrap}";
+
+				return false;
+			}
+		}
 
 		# Actions
 		switch ($action) {
@@ -253,4 +278,5 @@ class awsS3Helper
         return $bytes;
 
 	}
+
 }
