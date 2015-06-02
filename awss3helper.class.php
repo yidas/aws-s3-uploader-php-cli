@@ -160,7 +160,7 @@ class awsS3Helper
 
 			if ($this->object_exist($file['dst'])) {
 				
-				echo "S3 Object Key already exists";
+				echo "S3 Object Key already exists {$line}({$file['dst']})";
 				echo "{$_wrap}";
 
 				return false;
