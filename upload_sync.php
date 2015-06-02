@@ -18,18 +18,23 @@
 
 $_aws['bucket'] = 'mybucket'; 	// S3 Bucket
 
-$_aws['object_path'] = 'nick_tsai/'; 		// S3 Destination Object Path
+$_aws['object_path'] = 'nick_test/'; 		// S3 Destination Object Path
 
 # ==============================================================================
 
-# Directory
+# New Line Determine
+$_line = (isset($argv[0])) ? "\r\n" : "<br/>";
+$_wrap = $_line . $_line;
 
+# Argument 1
 $_dir['base'] = isset($_GET['base']) ? $_GET['base'] : NULL;
 $_dir['base'] = isset($argv[1]) ? $argv[1] : $_dir['base'] ; // From Shell
 
+# Argument 2
 $_dir['src'] = isset($_GET['src']) ? $_GET['src'] : NULL;
 $_dir['src'] = isset($argv[2]) ? $argv[2] : $_dir['src'] ; // From Shell
 
+# Argument 3
 $_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['object_path'];
 $_dir['dst'] = isset($argv[3]) ? $argv[3] : $_dir['dst'] ; // From Shell
 // echo $_dir['dst'];exit;
@@ -59,19 +64,28 @@ if ($all_dirs)
 foreach ($all_dirs as $key => $dir) {
 	
 	$file_list = glob($dir."/*.*");
-	// print_r($file_list);exit;
+	// print_r($file_list);echo count($file_list);exit;
+
+	# Range Option (appling when $all_dirs count is one)
+	$range['start'] = 0;
+	$range['end'] 	= 0;
+
+	$range['start'] = round($range['start']);
+	$range['end'] = round($range['end']);
+	$range['end'] = ($range['end'] > $range['start']) ? $range['end'] : count($file_list) - 1;
+	echo "Runing range started at {$range['start']} to {$range['end']} {$_wrap}";
 
 
 	# Find out all files of each directory
 
-	if ($file_list)
-	foreach ($file_list as $key => $file) {
+	if ($file_list && ($range['end'] > $range['start']))
+	for ($i = $range['start']; $i <= $range['end']; $i++) { 
 
 		$object_path = "{$_dir['dst']}/{$_dir['src']}/";	// Combinated with object prefix and current path
 
 		// Determine of S3_Object_is_exist here in the future.
 
-		$awsS3Helper->uploadProccess($file, $object_path, 'multipart');
+		$awsS3Helper->uploadProccess($file_list[$i], $object_path, 'multipart');
 	}
 }
 
