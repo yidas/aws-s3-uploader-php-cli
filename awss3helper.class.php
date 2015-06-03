@@ -234,7 +234,8 @@ class awsS3Helper
 		# Template
 		echo "{$_wrap}";
 		echo "# Excution Info =============={$_line}";
-		echo "Action: {$_action}{$_line}";
+		echo "Action: {$action}{$_line}";
+		echo "Start Date: ".date("Y-m-d H:i:s", $_exc_time['start'])."{$_line}";
 		echo "Start Time: {$_exc_time['start']}{$_line}";
 		echo "End Time: {$_exc_time['end']}{$_line}";
 		echo "Run Time: {$_exc_time['difference']} sec {$_line}";
