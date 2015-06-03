@@ -72,7 +72,7 @@ foreach ($all_dirs as $key => $dir) {
 
 	$range['start'] = round($range['start']);
 	$range['end'] = round($range['end']);
-	$range['end'] = ($range['end'] > $range['start']) ? $range['end'] : count($file_list) - 1;
+	$range['end'] = ( min($range['end'], count($file_list)) > $range['start']) ? $range['end'] : count($file_list) - 1;
 	echo "Runing range started at {$range['start']} to {$range['end']} {$_wrap}";
 
 
@@ -83,9 +83,11 @@ foreach ($all_dirs as $key => $dir) {
 
 		$object_path = "{$_dir['dst']}/{$_dir['src']}/";	// Combinated with object prefix and current path
 
-		// Determine of S3_Object_is_exist here in the future.
+		echo "[Sync] Proccess Key:{$i} of {$range['end']} ================== {$_wrap}";
 
 		$awsS3Helper->uploadProccess($file_list[$i], $object_path, 'multipart');
+
+		echo "{$_wrap}";
 	}
 }
 

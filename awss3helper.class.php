@@ -156,11 +156,13 @@ class awsS3Helper
 		$file['dst'] = $object_path . $file_dst_name;
 		// echo $file['dst'];exit;
 
+		echo "{$file['src']} => {$file['dst']} {$_line}";
+		
 		if ($overwrite == false) {
 
 			if ($this->object_exist($file['dst'])) {
 				
-				echo "S3 Object Key already exists {$line}({$file['dst']})";
+				echo "S3 Object Key already exists {$_line}({$file['dst']})";
 				echo "{$_wrap}";
 
 				return false;
