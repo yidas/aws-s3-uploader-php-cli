@@ -35,8 +35,16 @@ $_dir['src'] = isset($_GET['src']) ? $_GET['src'] : NULL;
 $_dir['src'] = isset($argv[2]) ? $argv[2] : $_dir['src'] ; // From Shell
 
 # Argument 3
+$_range_start = isset($_GET['start']) ? $_GET['start'] : 0;
+$_range_start = isset($argv[3]) ? $argv[3] : $_range_start ; // From Shell
+
+# Argument 4
+$_range_end = isset($_GET['end']) ? $_GET['end'] : 0;
+$_range_end = isset($argv[4]) ? $argv[4] : $_range_end ; // From Shell
+
+# Argument 5
 $_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['object_path'];
-$_dir['dst'] = isset($argv[3]) ? $argv[3] : $_dir['dst'] ; // From Shell
+$_dir['dst'] = isset($argv[5]) ? $argv[5] : $_dir['dst'] ; // From Shell
 // echo $_dir['dst'];exit;
 
 # Directory Check
@@ -67,8 +75,8 @@ foreach ($all_dirs as $key => $dir) {
 	// print_r($file_list);echo count($file_list);exit;
 
 	# Range Option (appling when $all_dirs count is one)
-	$range['start'] = 0;
-	$range['end'] 	= 0;
+	$range['start'] = $_range_start;
+	$range['end'] 	= $_range_end;
 
 	$range['start'] = round($range['start']);
 	$range['end'] = round($range['end']);
