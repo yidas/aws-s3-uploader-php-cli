@@ -61,6 +61,8 @@ $awsS3Helper->bucket = $_aws['bucket'];
 
 # Directory Scan Proccess
 
+$_dir['base'] = formatPath($_dir['base']);	// Format path
+
 $all_dirs = listDirs($_dir['base'] . $_dir['src']);
 $all_dirs[] = $_dir['base'] . $_dir['src']; 	// Current Directory Add
 // print_r($all_dirs);exit;
@@ -70,6 +72,14 @@ $all_dirs[] = $_dir['base'] . $_dir['src']; 	// Current Directory Add
 
 if ($all_dirs) 
 foreach ($all_dirs as $key => $dir) {
+
+	# Get the synchro directory based on $_dir['base']
+	$_dir['sync'] = formatPath(str_replace($_dir['base'], '', $dir));
+	// echo $_dir['sync'];exit;
+
+	# Format destinate
+	$_dir['dst'] = formatPath($_dir['dst']);
+
 	
 	$file_list = glob($dir."/*.*");
 	// print_r($file_list);echo count($file_list);exit;
@@ -89,7 +99,8 @@ foreach ($all_dirs as $key => $dir) {
 	if ($file_list && ($range['end'] > $range['start']))
 	for ($i = $range['start']; $i <= $range['end']; $i++) { 
 
-		$object_path = "{$_dir['dst']}/{$_dir['src']}/";	// Combinated with object prefix and current path
+		$object_path = "{$_dir['dst']}{$_dir['sync']}";	// Combinated with object prefix and current path
+		// echo $_dir['sync'];exit;
 
 		echo "[Sync] Proccess Key:{$i} of {$range['end']} ================== {$_wrap}";
 
@@ -108,7 +119,10 @@ foreach ($all_dirs as $key => $dir) {
 function listDirs($dir) {
 
 	static $all_dirs = array();
-
+	
+	# Format input path
+	$dir = (substr($dir, -1) == '/') ? substr($dir, 0, -1) : $dir ;
+	
 	$dirs = glob($dir . '/*', GLOB_ONLYDIR);
 
 	if (count($dirs) > 0) {
@@ -121,4 +135,17 @@ function listDirs($dir) {
 	return $all_dirs;
 }
 
+/** 
+ * ================================================================================
+ * Format File Path
+ * ================================================================================
+ */
+function formatPath($path)
+{
+	if ($path && substr($path, -1) != '/') {
+		$path .= '/';
+	}
+
+	return $path;
+}
 ?>
