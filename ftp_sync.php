@@ -8,7 +8,7 @@
  * if the file is unchanged and exceed the period time, it will be uploaded to S3 than be removed. 
  *
  * @date 	2015-06-13
- * @author 	Nick Tsai(yam-RD2)
+ * @author 	Nick Tsai (yam-RD2)
  */
 
 date_default_timezone_set('Asia/Taipei');
@@ -98,7 +98,7 @@ foreach ($fileList as $key => $file) {
 
 	# Check file data of CHECK_LIST_PATH
 	if (!$checkList) 
-		break;
+		continue;
 
 	# Matching between newList and checkList
 	if (array_key_exists($fileName, $checkList)) {
@@ -106,6 +106,8 @@ foreach ($fileList as $key => $file) {
 		$newFile = &$newList[$fileName];
 
 		$lastFile = &$checkList[$fileName];
+
+		$lastFile['updated_at'] = NOW; 	// Update modification time
 		
 		# Check if sizes are equal
 		if ($newFile['size'] == $lastFile['size']) {
@@ -114,21 +116,22 @@ foreach ($fileList as $key => $file) {
 			if (!$lastFile['size_locked_at']) {
 				
 				$newFile['size_locked_at'] = NOW;
+				$lastFile['size_locked_at'] = NOW; 	// For easily check 
 				continue;
 
 			} else {
 
 				# Check if is the file size unchanged and exceeded FILESIZE_PERIOD_MINUTES
-				if ( (NOW - $lastFile['size_locked_at']) > (FILESIZE_PERIOD_MINUTES*60) ) {
+				if ( (NOW - $lastFile['size_locked_at']) >= (FILESIZE_PERIOD_MINUTES*60) ) {
  
 					$awsS3Helper = getS3Helper();
 
 					# Upload configuration
 					$time = date("His" ,NOW);
 					$floderName = date("Ymd", NOW);		// S3 object prefix floder name		
-					$fileName = "{$time}_".FILENAME_PREFIX."{$fileName}";	// S3 object name
+					$objectName = "{$time}_".FILENAME_PREFIX."{$fileName}";	// S3 object name
 					
-					$result = $awsS3Helper->uploadProccess($newFile['path'], "vod_temp/{$floderName}/", 'multipart', $fileName);
+					$result = $awsS3Helper->uploadProccess($newFile['path'], "vod_temp/{$floderName}/", 'multipart', $objectName);
 
 					if (!$result && $awsS3Helper->error_code==200) {
 

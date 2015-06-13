@@ -177,7 +177,7 @@ class awsS3Helper
 		$file['extension'] = pathinfo(basename($file['src']),PATHINFO_EXTENSION);
 		// echo $file['extension'];exit;	
 
-		$file_dst_name = ($file_dst_name) ? $file_dst_name .'.'. $file['extension'] : $file['filename'];
+		$file_dst_name = ($file_dst_name) ? pathinfo($file_dst_name, PATHINFO_FILENAME) .'.'. $file['extension'] : $file['filename'];
 
 		$file['dst'] = $object_path . $file_dst_name;
 		// echo $file['dst'];exit;
