@@ -21,7 +21,7 @@ define('ROOT_PATH', dirname(__FILE__).'/');		// Root Path
 define('FTP_PATH', '/home/iptvftp/'); 			// FTP directroy path
 define('CHECK_LIST_PATH', ROOT_PATH.SYS_NAME.'_checklist.data');	// File path for save last list data
 define('RUNTIME_PATH', ROOT_PATH.SYS_NAME.'_runtime.data');			// File path for script runtime check
-define('FILESIZE_PERIOD_MINUTES', 3);			// Minutes of file size unchanged and exceeded
+define('FILESIZE_PERIOD_MINUTES', 1);			// Minutes of file size unchanged and exceeded
 define('FILENAME_PREFIX', '');					// File name prefix after upload
 define('DEBUG', true);							// Debug mode (Information)
 define('NOW', time());							// Current Time
@@ -31,7 +31,7 @@ define('NOW', time());							// Current Time
  * Data files check for this proccess
  */
 if (!file_exists(CHECK_LIST_PATH)) {
-	
+
 	$resource = fopen(CHECK_LIST_PATH, "w");
 	fclose($resource);
 }
@@ -94,7 +94,11 @@ foreach ($fileList as $key => $file) {
 		'size' => filesize($file),
 		'size_locked_at' => NULL,
 		'updated_at' => NOW,
-		];
+		];	
+
+	# Check file data of CHECK_LIST_PATH
+	if (!$checkList) 
+		break;
 
 	# Matching between newList and checkList
 	if (array_key_exists($fileName, $checkList)) {
@@ -117,19 +121,7 @@ foreach ($fileList as $key => $file) {
 				# Check if is the file size unchanged and exceeded FILESIZE_PERIOD_MINUTES
 				if ( (NOW - $lastFile['size_locked_at']) > (FILESIZE_PERIOD_MINUTES*60) ) {
  
-					/**
-					 * S3 Proccess
-					 */
-					require ROOT_PATH.'awss3helper.class.php';
-
-					$configs = [
-						'bucket' => '',
-						'key' => '',
-						'secret' => '',
-						'lib_path' => ROOT_PATH.'aws-sdk-php-2.8.8/vendor/autoload.php',
-						];
-
-					$awsS3Helper = new awsS3Helper($configs);
+					$awsS3Helper = getS3Helper();
 
 					# Upload configuration
 					$time = date("His" ,NOW);
@@ -161,7 +153,7 @@ foreach ($fileList as $key => $file) {
 
 					echo "Success proccess on {$newFile['path']}\n";
 
-					unset($newFile);
+					unset($newList[$fileName]);
 
 				} else {
 
@@ -200,6 +192,29 @@ $runtime['is_running'] = false;
 file_put_contents(RUNTIME_PATH, serialize($runtime));
 
 
+/**
+ * S3 Helper initialization
+ */
+function getS3Helper($value='')
+{
+	static $awsS3Helper;
+
+	if (!$awsS3Helper) {
+		
+		require ROOT_PATH.'awss3helper.class.php';
+
+		$configs = [
+			'bucket' => '',
+			'key' => '',
+			'secret' => '',
+			'lib_path' => ROOT_PATH.'aws-sdk-php-2.8.8/vendor/autoload.php',
+			];
+
+		$awsS3Helper = new awsS3Helper($configs);
+	}
+
+	return $awsS3Helper;
+}
 
 /** 
  * Dir Recursive List Function
