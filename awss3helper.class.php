@@ -27,7 +27,7 @@ class awsS3Helper
 	 */
 	private $secret;
 
-	private $lib_path = './aws-sdk-php-2.8.8/vendor/autoload.php';
+	private $lib_path = 'aws-sdk-php-2.8.8/vendor/autoload.php';
 	private $client;
 
 	/**
@@ -38,13 +38,13 @@ class awsS3Helper
 
 	function __construct($configs=array()) {
 
-		require $this->lib_path;
-
 		# Set configurations
 		foreach ($configs as $key => $value) {
 			
 			$this->$key = $value;
 		}
+
+		require $this->lib_path;
 
 		$this->client = $this->awsClinetGet();
 	}

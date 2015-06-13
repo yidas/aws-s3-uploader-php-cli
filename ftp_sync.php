@@ -126,6 +126,7 @@ foreach ($fileList as $key => $file) {
 						'bucket' => '',
 						'key' => '',
 						'secret' => '',
+						'lib_path' => ROOT_PATH.'aws-sdk-php-2.8.8/vendor/autoload.php',
 						];
 
 					$awsS3Helper = new awsS3Helper($configs);
