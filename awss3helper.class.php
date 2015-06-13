@@ -5,13 +5,15 @@
  * AWS S3 Helper
  * ================================================================================
  *
- * @date 	2015-06-01
+ * @date 	2015-06-13
  * @package	aws-sdk-php-2.8.8
  */
 class awsS3Helper
 {
 	
-	public $bucket = '';
+	public $bucket;		// (string) S3 Bucket
+	public $key;		// (string) S3 Key
+	public $secret;		// (string) S3 Secret key
 
 	private $lib_path = './aws-sdk-php-2.8.8/vendor/autoload.php';
 	private $client;
@@ -28,8 +30,8 @@ class awsS3Helper
 		return Aws\S3\S3Client::factory(array(
 		    'profile' => '<profile in your aws credentials file>',
 		    'credentials' => array(
-		        'key'    => '',
-		        'secret' => '')
+		        'key'    => $this->key,
+		        'secret' => $this->secret)
 		    ));
 	}
 
