@@ -30,6 +30,12 @@ class awsS3Helper
 	private $lib_path = './aws-sdk-php-2.8.8/vendor/autoload.php';
 	private $client;
 
+	/**
+	 * Exception Information
+	 */
+	public $error_code;
+	public $error_msg;
+
 	function __construct($configs=array()) {
 
 		require $this->lib_path;
@@ -182,7 +188,10 @@ class awsS3Helper
 
 			if ($this->object_exist($file['dst'])) {
 				
-				echo "S3 Object Key already exists {$_line}({$file['dst']})";
+				$this->error_code = 200;	// Success because the object exist
+				$this->error_msg = "S3 Object Key already exists";
+
+				echo "{$this->error_msg} {$_line}({$file['dst']})";
 				echo "{$_wrap}";
 
 				return false;
@@ -203,11 +212,11 @@ class awsS3Helper
 
 				if ($result) {
 					
-					echo 'Upload Success!'; return true;
+					echo 'Upload Success!';
 
 				} else {
 
-					echo 'Upload Failed'; return false;
+					echo 'Upload Failed';
 				}
 
 				break;
@@ -223,11 +232,11 @@ class awsS3Helper
 
 				if ($result) {
 					
-					echo 'Upload Success!'; return true;
+					echo 'Upload Success!';
 
 				} else {
 
-					echo 'Upload Failed'; return false;
+					echo 'Upload Failed';
 				}
 
 				break;
@@ -244,6 +253,13 @@ class awsS3Helper
 				exit;
 
 				break;
+		}
+
+		# Error Handler
+		if (!$result) {
+
+			$this->error_code = 500;	// Success because the object exist
+			$this->error_msg = "Upload Failed";
 		}
 
 
@@ -269,6 +285,8 @@ class awsS3Helper
 		echo "File Size: {$_exc_time['filesize-format']} {$_line}";
 		echo "Bandwith: {$_exc_time['bandwidth']} MBps in average {$_line}";
 		echo "{$_line}";
+
+		return $result;
 	}
 
 	private function formatSizeUnits($bytes)
