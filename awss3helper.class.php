@@ -203,11 +203,11 @@ class awsS3Helper
 
 				if ($result) {
 					
-					echo 'Upload Success!';
+					echo 'Upload Success!'; return true;
 
 				} else {
 
-					echo 'Upload Failed';
+					echo 'Upload Failed'; return false;
 				}
 
 				break;
@@ -223,11 +223,11 @@ class awsS3Helper
 
 				if ($result) {
 					
-					echo 'Upload Success!';
+					echo 'Upload Success!'; return true;
 
 				} else {
 
-					echo 'Upload Failed';
+					echo 'Upload Failed'; return false;
 				}
 
 				break;
