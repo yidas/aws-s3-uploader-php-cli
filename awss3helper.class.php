@@ -6,21 +6,39 @@
  * ================================================================================
  *
  * @date 	2015-06-13
+ * @author 	Nick Tsai (https://github.com/nickyidas)
  * @package	aws-sdk-php-2.8.8
  */
 class awsS3Helper
 {
 	
-	public $bucket;		// (string) S3 Bucket
-	public $key;		// (string) S3 Key
-	public $secret;		// (string) S3 Secret key
+	/**
+	 * (string) S3 Bucket
+	 */
+	public $bucket;
+	
+	/**
+	 * (string) S3 Key
+	 */
+	private $key;
+
+	/**
+	 * (string) S3 Secret key
+	 */
+	private $secret;
 
 	private $lib_path = './aws-sdk-php-2.8.8/vendor/autoload.php';
 	private $client;
 
-	function __construct() {
+	function __construct($configs=array()) {
 
 		require $this->lib_path;
+
+		# Set configurations
+		foreach ($configs as $key => $value) {
+			
+			$this->$key = $value;
+		}
 
 		$this->client = $this->awsClinetGet();
 	}
