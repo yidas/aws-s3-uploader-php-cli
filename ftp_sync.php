@@ -8,7 +8,7 @@
  * if the file is unchanged and exceed the period time, it will be uploaded to S3 than be removed. 
  *
  * @date 	2015-06-13
- * @author 	Nick Tsai (https://github.com/nickyidas)
+ * @author 	Nick Tsai(yam-RD2)
  */
 
 date_default_timezone_set('Asia/Taipei');
@@ -17,9 +17,10 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 define('SYS_NAME', 'ftp_sync'); 				// FTP directroy path
+define('ROOT_PATH', dirname(__FILE__).'/');		// Root Path
 define('FTP_PATH', '/home/iptvftp/'); 			// FTP directroy path
-define('CHECK_LIST_PATH', './'.SYS_NAME.'_checklist.data');	// File path for save last list data
-define('RUNTIME_PATH', './'.SYS_NAME.'_runtime.data');			// File path for script runtime check
+define('CHECK_LIST_PATH', ROOT_PATH.SYS_NAME.'_checklist.data');	// File path for save last list data
+define('RUNTIME_PATH', ROOT_PATH.SYS_NAME.'_runtime.data');			// File path for script runtime check
 define('FILESIZE_PERIOD_MINUTES', 3);			// Minutes of file size unchanged and exceeded
 define('FILENAME_PREFIX', '');					// File name prefix after upload
 define('DEBUG', true);							// Debug mode (Information)
@@ -119,7 +120,7 @@ foreach ($fileList as $key => $file) {
 					/**
 					 * S3 Proccess
 					 */
-					require './awss3helper.class.php';
+					require ROOT_PATH.'awss3helper.class.php';
 
 					$configs = [
 						'bucket' => '',
@@ -176,7 +177,7 @@ foreach ($fileList as $key => $file) {
 # Debug Mode
 if (DEBUG) {
 
-	echo "Current Time: ".NOW."\n";
+	echo "Current Time: ".NOW." (".date("Y-m-d H:i:s", NOW).")\n";
 
 	echo "Lock Time: ".(NOW-(FILESIZE_PERIOD_MINUTES*60))."\n\n";
 
