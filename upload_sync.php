@@ -5,20 +5,29 @@
  * AWS S3 Synchronous Batch Upload Tool
  * ================================================================================
  *
- * @date 	2015-06-01
+ * @date 	2015-08-12
+ * @author 	Nick Tsai
  *
  * @param (string) $argv[1]/$_GET['base']: Base Source Directory
  * @param (string) $argv[2]/$_GET['src']: 
  *					Source Directory refered to S3 Object (Optional)
  * @param (string) $argv[3]/$_GET['dst']: Base Destinate Directory (Optional)
  *
+ * @example 
+ *	php upload_sync.php /mnt/movies/ 			(/mnt/movies/ => /aws/)
+ *	php upload_sync.php /mnt/movies/july 		(/mnt/movies/july => /aws/)
+ *	php upload_sync.php /mnt/movies/ july 		(/mnt/movies/july => /aws/july)
+ *	php upload_sync.php /mnt/movies/ july 0 100 (start from 0 to 100)
+ *	php upload_sync.php /mnt/movies/ 0 0 100 	(/mnt/movies/ => /aws/)
+ *	php upload_sync.php /mnt/movies/ 0 0 0 dir 	(/mnt/movies/ => dir/)
+ *
  */
 
 # Setting =====================================================================
 
-$_aws['bucket'] = 'mybucket'; 	// S3 Bucket
+$_aws['bucket'] = 'mybucket'; 					// S3 Bucket
 
-$_aws['object_path'] = 'nick_test/'; 		// S3 Destination Object Path
+$_aws['default_object_path'] = 'nick_test/'; 	// S3 Destination Default Path
 
 # ==============================================================================
 
@@ -28,23 +37,23 @@ $_wrap = $_line . $_line;
 
 # Argument 1
 $_dir['base'] = isset($_GET['base']) ? $_GET['base'] : NULL;
-$_dir['base'] = isset($argv[1]) ? $argv[1] : $_dir['base'] ; // From Shell
+$_dir['base'] = isset($argv[1]) && $argv[1] ? $argv[1] : $_dir['base'] ; // From Shell
 
 # Argument 2
 $_dir['src'] = isset($_GET['src']) ? $_GET['src'] : NULL;
-$_dir['src'] = isset($argv[2]) ? $argv[2] : $_dir['src'] ; // From Shell
+$_dir['src'] = isset($argv[2]) && $argv[2] ? $argv[2] : $_dir['src'] ; // From Shell
 
 # Argument 3
 $_range_start = isset($_GET['start']) ? $_GET['start'] : 0;
-$_range_start = isset($argv[3]) ? $argv[3] : $_range_start ; // From Shell
+$_range_start = isset($argv[3]) && $argv[3] ? $argv[3] : $_range_start ; // From Shell
 
 # Argument 4
 $_range_end = isset($_GET['end']) ? $_GET['end'] : 0;
-$_range_end = isset($argv[4]) ? $argv[4] : $_range_end ; // From Shell
+$_range_end = isset($argv[4]) && $argv[4] ? $argv[4] : $_range_end ; // From Shell
 
 # Argument 5
-$_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['object_path'];
-$_dir['dst'] = isset($argv[5]) ? $argv[5] : $_dir['dst'] ; // From Shell
+$_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['default_object_path'];
+$_dir['dst'] = isset($argv[5]) && $argv[5] ? $argv[5] : $_dir['dst'] ; // From Shell
 // echo $_dir['dst'];exit;
 
 # Directory Check
