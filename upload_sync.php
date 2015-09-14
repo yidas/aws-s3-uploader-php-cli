@@ -5,29 +5,34 @@
  * AWS S3 Synchronous Batch Upload Tool
  * ================================================================================
  *
- * @date 	2015-08-12
- * @author 	Nick Tsai
+ * @date 		2015-09-14
+ * @author 		Nick Tsai
+ * @filesource 	AwsS3Helper library
  *
- * @param (string) $argv[1]/$_GET['base']: Base Source Directory
- * @param (string) $argv[2]/$_GET['src']: 
- *					Source Directory refered to S3 Object (Optional)
- * @param (string) $argv[3]/$_GET['dst']: Base Destinate Directory (Optional)
+ * @param (string) $argv[1]/$_GET['src']: Local source directory
+ * @param (string) $argv[2]/$_GET['dir']: 
+ *			Local & destinate(S3) common directory
+ * @param (string) $argv[3]/$_GET['dst']: Destinate(S3) directory
+ * @param (string) $argv[4]/$_GET['start']: Range start
+ * @param (string) $argv[5]/$_GET['end']: Range end
  *
- * @example 
- *	php upload_sync.php /mnt/movies/ 			(/mnt/movies/ => /aws/)
- *	php upload_sync.php /mnt/movies/july 		(/mnt/movies/july => /aws/)
- *	php upload_sync.php /mnt/movies/ july 		(/mnt/movies/july => /aws/july)
- *	php upload_sync.php /mnt/movies/ july 0 100 (start from 0 to 100)
- *	php upload_sync.php /mnt/movies/ 0 0 100 	(/mnt/movies/ => /aws/)
- *	php upload_sync.php /mnt/movies/ 0 0 0 dir 	(/mnt/movies/ => dir/)
+ * @example ($_aws['default_dst'] = 'aws/'; )
+ *	php upload_sync.php /mnt/movies/ 			(/mnt/movies/ => aws/)
+ *	php upload_sync.php /mnt/movies/july 		(/mnt/movies/july => aws/)
+ *	php upload_sync.php /mnt/movies/ july 		(/mnt/movies/july => aws/july)
+ *	php upload_sync.php /mnt/movies/ 0 dir 		(/mnt/movies/ => dir/)
+ *	php upload_sync.php /mnt/movies/ july dir 	(/mnt/movies/july => dir/july)
+ *	php upload_sync.php /mnt/movies/ 0 0 5 100 	(start from 5 to 100)
  *
  */
 
 # Setting =====================================================================
 
-$_aws['bucket'] = 'mybucket'; 					// S3 Bucket
+$_aws['default_src'] = ''; 				// Default local source directory
 
-$_aws['default_object_path'] = 'nick_test/'; 	// S3 Destination Default Path
+$_aws['default_dir'] = ''; 				// Default local & S3 common directory
+
+$_aws['default_dst'] = 'video/yam/'; 	// Default destinate(S3) directory
 
 # ==============================================================================
 
@@ -36,12 +41,12 @@ $_line = (isset($argv[0])) ? "\r\n" : "<br/>";
 $_wrap = $_line . $_line;
 
 # Argument 1
-$_dir['base'] = isset($_GET['base']) ? $_GET['base'] : NULL;
-$_dir['base'] = isset($argv[1]) && $argv[1] ? $argv[1] : $_dir['base'] ; // From Shell
+$_dir['src'] = isset($_GET['src']) ? $_GET['src'] : $_aws['default_src'];
+$_dir['src'] = isset($argv[1]) && $argv[1] ? $argv[1] : $_dir['src'] ; // From Shell
 
 # Argument 2
-$_dir['src'] = isset($_GET['src']) ? $_GET['src'] : NULL;
-$_dir['src'] = isset($argv[2]) && $argv[2] ? $argv[2] : $_dir['src'] ; // From Shell
+$_dir['dir'] = isset($_GET['dir']) ? $_GET['dir'] : $_aws['default_dir'];
+$_dir['dir'] = isset($argv[2]) && $argv[2] ? $argv[2] : $_dir['dir'] ; // From Shell
 
 # Argument 3
 $_range_start = isset($_GET['start']) ? $_GET['start'] : 0;
@@ -52,28 +57,27 @@ $_range_end = isset($_GET['end']) ? $_GET['end'] : 0;
 $_range_end = isset($argv[4]) && $argv[4] ? $argv[4] : $_range_end ; // From Shell
 
 # Argument 5
-$_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['default_object_path'];
+$_dir['dst'] = isset($_GET['dst']) ? $_GET['dst'] : $_aws['default_dst'];
 $_dir['dst'] = isset($argv[5]) && $argv[5] ? $argv[5] : $_dir['dst'] ; // From Shell
 // echo $_dir['dst'];exit;
 
 # Directory Check
-if (!is_dir($_dir['base']))
-	throw new Exception("Base Source Directory could not found", 400);
+if (!is_dir($_dir['src']))
+	throw new Exception("Local source directory could not found", 400);
 
 
 # AWS S3 Helper
-require './awss3helper.class.php';
-$awsS3Helper = new awsS3Helper;
-
-$awsS3Helper->bucket = $_aws['bucket'];
+require dirname(__FILE__).'/libs/AwsS3Helper.class.php';
+$s3Config = require dirname(__FILE__).'/config/s3.php';
+$awsS3Helper = new AwsS3Helper($s3Config);
 
 
 # Directory Scan Proccess
 
-$_dir['base'] = formatPath($_dir['base']);	// Format path
+$_dir['src'] = formatPath($_dir['src']);	// Format path
 
-$all_dirs = listDirs($_dir['base'] . $_dir['src']);
-$all_dirs[] = $_dir['base'] . $_dir['src']; 	// Current Directory Add
+$all_dirs = listDirs($_dir['src'] . $_dir['dir']);
+$all_dirs[] = $_dir['src'] . $_dir['dir']; 	// Current Directory Add
 // print_r($all_dirs);exit;
 
 
@@ -82,8 +86,8 @@ $all_dirs[] = $_dir['base'] . $_dir['src']; 	// Current Directory Add
 if ($all_dirs) 
 foreach ($all_dirs as $key => $dir) {
 
-	# Get the synchro directory based on $_dir['base']
-	$_dir['sync'] = formatPath(str_replace($_dir['base'], '', $dir));
+	# Get the synchro directory based on $_dir['src']
+	$_dir['sync'] = formatPath(str_replace($_dir['src'], '', $dir));
 	// echo $_dir['sync'];exit;
 
 	# Format destinate

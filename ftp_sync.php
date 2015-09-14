@@ -18,9 +18,10 @@ ini_set("display_errors", 1);
 
 define('SYS_NAME', 'ftp_sync'); 				// FTP directroy path
 define('ROOT_PATH', dirname(__FILE__).'/');		// Root Path
+define('RUNTIME_DIR', ROOT_PATH.'runtime/');	// Root Path
 define('FTP_PATH', '/home/iptvftp/'); 			// FTP directroy path
-define('CHECK_LIST_PATH', ROOT_PATH.SYS_NAME.'_checklist.data');	// File path for save last list data
-define('RUNTIME_PATH', ROOT_PATH.SYS_NAME.'_runtime.data');			// File path for script runtime check
+define('CHECK_LIST_PATH', RUNTIME_DIR.SYS_NAME.'_checklist.data');		// File path for save last list data
+define('RUNTIME_PATH', RUNTIME_DIR.SYS_NAME.'_runtime.data');			// File path for script runtime check
 define('FILESIZE_PERIOD_MINUTES', 1);			// Minutes of file size unchanged and exceeded
 define('FILENAME_PREFIX', '');					// File name prefix after upload
 define('DEBUG', true);							// Debug mode (Information)
@@ -124,7 +125,10 @@ foreach ($fileList as $key => $file) {
 				# Check if is the file size unchanged and exceeded FILESIZE_PERIOD_MINUTES
 				if ( (NOW - $lastFile['size_locked_at']) >= (FILESIZE_PERIOD_MINUTES*60) ) {
  
-					$awsS3Helper = getS3Helper();
+					# AWS S3 Helper
+					require dirname(__FILE__).'/libs/AwsS3Helper.class.php';
+					$s3Config = require dirname(__FILE__).'/config/s3.php';
+					$awsS3Helper = new AwsS3Helper($s3Config);
 
 					# Upload configuration
 					$time = date("His" ,NOW);
@@ -195,29 +199,6 @@ $runtime['is_running'] = false;
 file_put_contents(RUNTIME_PATH, serialize($runtime));
 
 
-/**
- * S3 Helper initialization
- */
-function getS3Helper($value='')
-{
-	static $awsS3Helper;
-
-	if (!$awsS3Helper) {
-		
-		require ROOT_PATH.'awss3helper.class.php';
-
-		$configs = [
-			'bucket' => '',
-			'key' => '',
-			'secret' => '',
-			'lib_path' => ROOT_PATH.'aws-sdk-php-2.8.8/vendor/autoload.php',
-			];
-
-		$awsS3Helper = new awsS3Helper($configs);
-	}
-
-	return $awsS3Helper;
-}
 
 /** 
  * Dir Recursive List Function

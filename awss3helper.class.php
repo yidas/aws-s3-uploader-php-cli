@@ -27,7 +27,7 @@ class awsS3Helper
 	 */
 	private $secret;
 
-	private $lib_path = 'aws-sdk-php-2.8.8/vendor/autoload.php';
+	private $lib_path = './aws-sdk-php-2.8.8/vendor/autoload.php';	// Relative path 
 	private $client;
 
 	/**
