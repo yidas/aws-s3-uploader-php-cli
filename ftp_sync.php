@@ -131,7 +131,7 @@ foreach ($fileList as $key => $file) {
 					$awsS3Helper = new AwsS3Helper($s3Config);
 
 					# Upload configuration
-					$time = date("His" ,NOW);
+					$time = date("H:i:s" ,NOW);
 					$floderName = date("Ymd", NOW);		// S3 object prefix floder name		
 					$objectName = "{$time}_".FILENAME_PREFIX."{$fileName}";	// S3 object name
 					
