@@ -23,6 +23,7 @@ define('FTP_PATH', '/home/iptvftp/'); 			// FTP directroy path
 define('FTP_DONE_PATH', false); 				// FTP done files' directroy path (false: delete files)
 define('CHECK_LIST_PATH', RUNTIME_DIR.SYS_NAME.'_checklist.data');		// File path for save last list data
 define('RUNTIME_PATH', RUNTIME_DIR.SYS_NAME.'_runtime.data');			// File path for script runtime check
+define('DEADLOCK_MINUTE', 10);					// File path for script runtime check
 define('FILESIZE_PERIOD_MINUTES', 1);			// Minutes of file size unchanged and exceeded
 define('FILENAME_PREFIX', '');					// File name prefix after upload
 define('DEBUG', true);							// Debug mode (Information)
@@ -53,8 +54,11 @@ $runtime = unserialize( file_get_contents(RUNTIME_PATH) );
 # Check if is running:
 if ($runtime && $runtime['is_running'])	{
 
-	echo "Exit because another proccess is running\n";
-	exit;
+	if ( DEADLOCK_MINUTE==0 || ($runtime['last_time'] + DEADLOCK_MINUTE) > time() ) {
+		
+		echo "Exit because another proccess is running\n";
+		exit;
+	}
 }
 
 # Lock runtime
